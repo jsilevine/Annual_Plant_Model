@@ -10,4 +10,118 @@
 
 
 
-hello
+h
+
+* Variable definition:
+
+
+** Variable Names
+$a_{f}$ - conversion rate from photons to carbohydrates
+$Z$ - Plant height
+$S$ - Plant structural biomass
+$W$ - crown area
+$F$ - Fecundity per unit $W$
+$l$ - leaf area index for an individual
+$c_{l,b}$ - cost of building a unit of leaf in carbon
+$c_{r,b}$ - cost of building a unit of fine-root surface area in carbon
+$c_{f}$ - carbon cost per offspring produced by a tree
+$\tau_{l}$ - average lifetime of a unit carbon in the leaves
+$\tau_{r}$ - average lifetime of a unit carbon in the roots
+$p_{l}$ - respiration rate of leaves (assume these are time averages in a constant climate)
+$p_{r}$ - respiration rate of fine-roots
+$p_{sw}$ - respiration rateo of sapwood
+$\gamma$ - exponential allometric constant
+
+
+** Allometric relationships
+Foliage $= lW$ \\
+Fine root surface area $= rW$ \\
+mature tree fecundity $= FW$ \\
+$Z = HD^{\gamma-1}$ \\
+$S = a_{s}D^{\gamma+1}$ \\
+$W = a_{w}D^{\gamma}$ \\
+$\gamma \approx 1.5$ \\
+
+
+** Carbon accumulation equations
+
+The following are integrations of Beer's law across the layers of the canopy.
+Farrior's version
+\begin{equation}
+A_{L} = \frac{V}{K}(1+ln(\frac{\alpha_{f}L_0}{V})-\frac{\alpha_{f}L_{0}}{V}e^{-kLAI})
+\end{equation}
+
+Includes variable for the number of leaf layers that operate at the light-saturated photosynthetic rate:
+\begin{equation}
+l^{~} = \frac{1}{k}ln({\alpha_{f}L_{0}}{V})
+\end{equation}
+
+Simple version from Aiyu, doesn't incorporate $l^{~}$
+\begin{equation}
+A_{L} = V\frac{V}{K}(1-e^{-kLAI})
+\end{equation}
+
+
+** Carbon allocation and growth equations
+
+\begin{equation}
+\mbox{rate of carbon fixation } = W(t)A(t)
+\end{equation}
+
+\begin{equation}
+\mbox{replacement of dropped leaves } = W(t)l(t)\frac{c_{l,b}}{\tau_{l}}
+\end{equation}
+
+\begin{equation}
+\mbox{replacement of dead roots } = W(t)r(t)\frac{c_{r,b}}{\tau_{r}}
+\end{equation}
+
+\begin{equation}
+\mbox{growth of leaf mass } = (l(t)\frac{dW}{dt}+\frac{dl}{dt}W(t))c_{l,b}
+\end{equation}
+
+\begin{equation}
+\mbox{growth of fine-root surface area } = (r(t)\frac{dW}{dt}+\frac{dr}{dt}W(t))c_{r,b}
+\end{equation}
+
+\begin{equation}
+\mbox{stem growth } = \frac{dS}/{dt}
+\end{equation}
+
+\begin{equation}
+\mbox{fecundity } = W(t)c_{f}F(t)
+\end{equation}
+
+
+** Respiration Terms
+
+\begin{equation}
+\mbox{fine-root respiration } = p_{r}r(t)W(t)
+\end{equation}
+
+\begin{equation}
+\mbox{leaf respiration } = p_{l}l(t)W(t)
+\end{equation}
+
+\begin{equation}
+\mbox{sapwood respiration } = p_{sw}\alpha_{sw}D^{\gamma}l(t)
+\end{equation}
+
+** Carbon Fixation Equation
+
+\begin{equation}
+W(t)A(t) = W(t)l(t)\frac{c_{l,b}}{\tau_{l}} + W(t)r(t)\frac{c_{r,b}}{\tau_{r}} + l(t)\frac{dW}{dt}c_{l,b} + W(t)\frac{dW}{dt}c_{r,t} \\
+& & + W(t)\frac{dr}{dt}c_{r,b} + l(t)W(t)p_{l} + r(t)W(t)p_{r} + \alpha_{sw}D(t)^{\gamma}p_{sw}l(t) + \frac{dS}{dt} + W(t)c_{f}F(t)
+\end{equation}
+
+Using eq. 2 & 3, rearrange eq. __ to solve for $\frac{dD}{dt}$:
+
+\begin{equation}
+\frac{dD}{dt} = \frac{1}{[\alpha_{s}(\gamma + 1)(1 = c_{b,g})/\alpha_{w}] + (\frac{\gamma}{D})(lc_{l,b} + rc_{r,b})}(A - lc_{l} - rc_{r} - \frac{dl}{dt}c_{l,b}-\frac{dr}{dt}c_{s,b} - c_{f}F)
+\end{equation}
+
+As diameter increases, the growth rate can be approximated as:
+
+\begin{equation}
+\frac{dD}{dt} = \frac{1}{[\alpha_{s}(\gamma + 1)(1 = c_{b,g})/\alpha_{w}]}(A - lc_{l} - rc_{r} - \frac{dl}{dt}c_{l,b}-\frac{dr}{dt}c_{s,b} - c_{f}F)
+\end{equation}
