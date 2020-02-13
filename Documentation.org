@@ -15,22 +15,37 @@ h
 * Variable definition:
 
 
-** Variable Names
-$a_{f}$ - conversion rate from photons to carbohydrates
-$Z$ - Plant height
-$S$ - Plant structural biomass
-$W$ - crown area
-$F$ - Fecundity per unit $W$
-$l$ - leaf area index for an individual
-$c_{l,b}$ - cost of building a unit of leaf in carbon
-$c_{r,b}$ - cost of building a unit of fine-root surface area in carbon
-$c_{f}$ - carbon cost per offspring produced by a tree
-$\tau_{l}$ - average lifetime of a unit carbon in the leaves
-$\tau_{r}$ - average lifetime of a unit carbon in the roots
-$p_{l}$ - respiration rate of leaves (assume these are time averages in a constant climate)
-$p_{r}$ - respiration rate of fine-roots
-$p_{sw}$ - respiration rateo of sapwood
-$\gamma$ - exponential allometric constant
+** Variable Names and values
+
+
+| variable name | description                                                                  |       value | unit                             | source                                                                             |
+|---------------+------------------------------------------------------------------------------+-------------+----------------------------------+------------------------------------------------------------------------------------|
+| $Z$           | Plant height                                                                 |             |                                  |                                                                                    |
+| $S$           | Plant structural biomass                                                     |             |                                  |                                                                                    |
+| $W$           | Crown area                                                                   |             |                                  |                                                                                    |
+| $F$           | Fecundity per unit $W$                                                       |             |                                  |                                                                                    |
+| $l_{c}$       | leaf area index for a canopy individual                                      |           4 | $m^2 \: m^{-2}$                  | From Farrior et al. 2013, can be modified                                          |
+| $l_{u}$       | leaf area index for an understory individual                                 |           1 | $m^2 \: m^{-2}$                  | From Farrior et al. 2013, can be modified                                          |
+|---------------+------------------------------------------------------------------------------+-------------+----------------------------------+------------------------------------------------------------------------------------|
+| $\alpha_{w}$  | allometric constant for crown area                                           |         .20 | $m^{2}/cm^{\gamma}$              | Calculated from FHS data, Woodall et al. 2010 bwa Farrior et al. 2013              |
+| $\alpha_{s}$  | allometric constant for structural biomass                                   |       .0815 | $kg \: C/cm^{\gamma+1}$          | Dybzinski et al. 2011 analysis of Jenkins et al. 2003 and White et al. 2000 data   |
+| $H$           | allometric constant for height                                               |         3.6 | $m/cm^{\gamma-1}$                | Calculate from FHS data, Woodall et al. 2010 bwa Farrior et al. 2013               |
+| $\gamma$      | exponential allometric constant                                              |         1.5 |                                  | Farrior et al. 2013                                                                |
+|---------------+------------------------------------------------------------------------------+-------------+----------------------------------+------------------------------------------------------------------------------------|
+| $c_{l,b}$     | cost of building a unit of leaf in carbon                                    |      .05592 | $kg \: C \: m^{-2} \: year^{-1}$ | Backed out from Farrior et al. 2013 equations $= 1.2*p_{r}$                        |
+| $c_{r,b}$     | cost of building a unit of fine-root surface area in carbon                  |        0.75 | $kg \: C \: m^{-2} \: year^{-1}$ | From Shevliakova et al. 2009, assumed same as respiration                          |
+| $c_{r}$       | total cost of building and maintaining fine roots (in terms of surface area) |       .0448 | $kg \: C \: m^{-2} \: year^{-1}$ | From Shevliakova et al. 2009, sum of $c_{r,b}$ and $p_{r,b}$ divided by $rsa_{kg}$ |
+| $c_{f}$       | cost per offspring produced by a tree                                        |        4.87 | $kg \: C \: sapling^{-1}$        | From Dybzinski et al. 2011 analysis of Whittaker et al. 1974                       |
+| $c_{b,g}$     | cost of building a unit of structural biomass in carbon                      |          .2 | $kg \: C \: kg \: C^{-1}$        | From Farrior et al. 2013, unsure where she gets it                                 |
+| $\tau_{l}$    | average lifetime of a unit carbon in the leaves                              |           1 | $years$                          | I think this is what Caroline assumes in 2013 paper?                               |
+| $\tau_{r}$    | average lifetime of a unit carbon in the roots                               |           2 | $years$                          | Assumption made by Farrior et al. 2013                                             |
+| $p_{l}$       | respiration rate of leaves (assumed time average in constant climate)        |       .0638 | $kg \: C \: m^{-2} \: year^{-1}$ | Backed this out from Farrior et al. 2013 Appendix A equations and parameter values |
+| $p_{r, b}$    | respiration rate of fine-roots                                               |        1.25 | $kg \: C \: kg \: C^{-1}$        | From Shevliakova et al. 2009                                                       |
+| $p_{r}$       | respiration rate of fine-roots (in terms of surface area)                    | 0.028026906 | $kg C mo^{-2}$                   | From Shevliakova et al. 2009, divided by sa/kg C                                   |
+| $p_{sw, c}$   | respiration rate of sapwood (overstory tree)                                 |      0.0466 | $kg C m^{-2} year^{-1}$          | Bolstad et al. 2004 Table 4, divided by an LAI of 5 to get per LAI tree resp. rate |
+| $rsa_{kg}$    | surface area of roots per kg of C                                            |        44.6 | $kg C m^{-2}$                    | Jackson et al. 1997                                                                |
+|---------------+------------------------------------------------------------------------------+-------------+----------------------------------+------------------------------------------------------------------------------------|
+| $a_{f}$       | conversion rate from photons to carbohydrates                                |             |                                  |                                                                                    |
 
 
 ** Allometric relationships
