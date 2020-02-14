@@ -5,6 +5,9 @@
 ** TODO write aboveground model for multiple species
 ** TODO write belowground model for single species
 ** TODO write belowground model for multiple species
+** TODO create R package/database for allometry parameters
+** TODO Reconcile light -> carbon allocation equations
+** TODO Rederive dD/dt from Caroline's paper using new information about respiration values
 
 * Notes
 
@@ -55,6 +58,9 @@ h
 
 
 ** Allometric relationships
+
+
+
 Foliage $= lW$ \\
 Fine root surface area $= rW$ \\
 mature tree fecundity $= FW$ \\
