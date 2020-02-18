@@ -13,6 +13,8 @@ l_c <- 4               ## leaf area index of tree canopy tree
 l_u <- 1               ## leaf are index of understory tree
 r_c <- 6.5
 r_u <- 2
+mu_c <- 0.005
+mu_u <- 0.015
 r <- 6.5             ## fine-root surface area per unit crown area
 H <- 3.6             ## allometric constant for height
 alpha_s <- 0.0815        ## allometric constant for sapwood
@@ -39,8 +41,13 @@ a_f <- 0.001         ## conversion rate from photons to carbohydrates
 max_t <- 1000        ## length of simulation in days
 dnot <- 0.0001       ## starting diameter
 timestep <- 1        ## timestep in day o
-cohort_density <- 20 ## initial pop. size in #ind./m^2
+cohort_density <- 1 ## initial pop. size in #ind./m^2
 plot_area <- 500     ## plot area in m^2
+
+
+## load function and class files
+source()
+source()
 
 ## 2.function definition
 
@@ -82,35 +89,12 @@ calc.dd <- function(diameter, l, r, A) {
   return(dd)
 }
 
-## function to calculate height, crown area, structural biomass and fine-root surface area from vector of diameter values
-calc.allom <- function(diam.data) {
-  data <- data.frame(diameter = diam.data,
-                     height = H*(diam.data^(gamma-1)),
-                     crown_area = a_w*(diam.data^gamma),
-                     struct_biomass = a_s*(diam.data^(gamma+1)),
-                     root_surface_area = r*(a_w*(diam.data^gamma)))
-  plot.simulations(df = data)
-  return(data)
-}
-
 ## 2.2 simulator functions
 
 
 system.time({
-  x <- simulate.stand(max_t <- 100, timestep = 1, dnot=dnot, plot.area=100)
+  x <- simulate.stand(max_t <- 50, timestep = 1, dnot=dnot, plot.area=200)
 })
-
-
-
-
-
-
-
-
-
-
-
-
 
 ## run function
 df <- simulate.tree(max_t = max_t, timestep = timestep, dnot = dnot)

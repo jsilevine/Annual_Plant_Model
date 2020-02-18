@@ -10,7 +10,7 @@ calculate.allometry <- function(simulation) {
   simulation[["height"]] <- H*(simulation[["diameter"]]^(gamma-1))
   simulation[["crown_area"]] <- alpha_w*(simulation[["diameter"]]^gamma)
   simulation[["struct_biomass"]] <- alpha_s*(simulation[["diameter"]]^(gamma+1))
-  simulation[["root_sa"]] <- matrix(1, dim=dim(simulation[["diameter"]]))
+  simulation[["root_sa"]] <- matrix(1, nrow = nrow(simulation[["diameter"]]), ncol = ncol(simulation[["diameter"]]))
   simulation[["root_sa"]][simulation[["crown.area"]]==1,] <- simulation[["crown_area"]]*r_c
   simulation[["root_sa"]][simulation[["crown.area"]]==2,] <- simulation[["crown_area"]]*r_u
 

@@ -3,7 +3,7 @@
 
 ## define main simulate function
 
-simulate.stand <- function(max_t, timestep, dnot, plot.area, full.allom = TRUE) {
+simulate.stand <- function(max_t, timestep, dnot, plot.area, full.allom = TRUE, avgs = TRUE) {
 
   if (!is.numeric(max_t)) {
     print("Error: max_t must be numeric")
@@ -20,7 +20,7 @@ simulate.stand <- function(max_t, timestep, dnot, plot.area, full.allom = TRUE) 
     return()
   }
 
-  if(!is.numberic(plot.area)) {
+  if(!is.numeric(plot.area)) {
     print("Error: plot.area must be numeric")
     return()
   }
@@ -47,13 +47,13 @@ simulate.stand <- function(max_t, timestep, dnot, plot.area, full.allom = TRUE) 
   ## loop over days in simulation
   for (i in seq(1, max_t, by = timestep)) {
 
-    ## first kill plants
+    ## first, kill plants
     mu <- vector(length=nrow(data[["diameter"]]))
-    mu[data[["crown.class"]][,i]==1] <- rbinom(length(data[["crown.class"]][,i]==1),1,mu_c)
-    mu[data[["crown.class"]][,i]==2] <- rbinom(length(data[["crown.class"]][,i]==2),1,mu_u)
-    data[["diameter"]] <- data[["diameter"]][mu==0,i]
-    data[["crown.class"]] <- data[["crown.class"]][mu==0,i]
-    data[["diameter.growth"]] <- data[["diameter.growth"]][mu==0,i]
+    mu[data[["crown.class"]][,i]==1] <- rbinom(sum(data[["crown.class"]][,i]==1),1,mu_c)
+    mu[data[["crown.class"]][,i]==2] <- rbinom(sum(data[["crown.class"]][,i]==2),1,mu_u)
+    data[["diameter"]] <- data[["diameter"]][mu==0,]
+    data[["crown.class"]] <- data[["crown.class"]][mu==0,]
+    data[["diameter.growth"]] <- data[["diameter.growth"]][mu==0,]
 
     ## grow plants
     ## calculate diameter growth for overstory and understory
@@ -61,39 +61,45 @@ simulate.stand <- function(max_t, timestep, dnot, plot.area, full.allom = TRUE) 
                                                                         calc.dd, l=l_c, r=r_c, A=A_c, simplify = "vector")
     if (any(data[["crown.class"]][,i]==2)) {
       data[["diameter.growth"]][data[["crown.class"]][,i]==2,i] <- sapply(data[["diameter"]][data[["crown.class"]][,i]==2,i],
-                                                                        calc.dd, l=l_c, r=r_c, A=A_c, simplify = "vector")
+                                                                        calc.dd, l=l_u, r=r_u, A=A_u, simplify = "vector")
     }
 
     ## calculate diameter for next timestep
     data[["diameter"]][,i+1] <- data[["diameter"]][,i] + data[["diameter.growth"]][,i]
 
-    ## canopy class calculations
-    CA <- sum(alpha_w*(data[["diameter"]][,i+1])^gamma)
+    ## canopy class reassignment
+    CA <- sum(alpha_w*((data[["diameter"]][,i+1])^gamma))
     if(CA<=plot.area) {
       data[["crown.class"]][,i+1] <- 1
     }
     else {
-      CA <- sum(alpha_w*(data[["diameter"]][data[["crown.class"]][,i]==1,i+1])^gamma)
+      ## order data from largest to smallest
       data[["diameter"]] <- data[["diameter"]][order(data[["diameter"]][,i+1]),]
       data[["crown.class"]] <- data[["crown.class"]][order(data[["diameter"]][,i+1]),]
       data[["diameter.growth"]] <- data[["diameter.growth"]][order(data[["diameter"]][,i+1]),]
-
-      ca.sum <- vector(length=nrow(data[["diameter"]]))
+      ## create vector of cumulative CA sums, used to determine which trees to add, remove from canopy
+      ca.sum <- vector(length=nrow(data[["diameter"]]), mode = "numeric")
       for (j in 1:nrow(data[["diameter"]])) {
-        ca.sum[i] <- sum(alpha_w*(data[["diameter"]][seq(1, j, 1),i+1]))
+        ca.sum[j] <- sum((alpha_w*data[["diameter"]][,i+1]^gamma)[1:j])
       }
-
-      data[["crown.class"]][ca.sum <= plot.area] <- 1
-      data[["crown.class"]][ca.sum > plot.area] <- 2
-
+      ## if gap in canopy trees, add understory trees to canopy and vis versa
+      data[["crown.class"]][ca.sum <= plot.area, i+1] <- 1
+      data[["crown.class"]][ca.sum > plot.area, i+1] <- 2
     }
-
   }
-  if (full.allom) {
-    data <- calc.allom(data)
-  }
+  data[["max_t"]] <- max_t
+  data[["timestep"]] <- timestep
+  data[["plot.area"]] <- plot.area
 
   class(data) <- "simulation"
+  if (full.allom) {
+    data <- calculate.allometry(data)
+  }
+
+  if(avgs) {
+    data[["avgs"]] <- simulation_averages(data)
+  }
+
   return(data)
 }
 
@@ -112,6 +118,13 @@ format.simulation <- function(x) {
 
 summary.simulation <- function(simulation) {
 
-
-
 }
+
+
+##plot.simulation <- function(simulation) {
+##  timestep <- seq(1, simulation[["max_t"]]+1, by = timestep)
+
+##  diameter.plot <- ggplot(aes(x=timestep,y=), color = ))
+
+
+##}
