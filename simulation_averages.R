@@ -8,14 +8,15 @@ simulation_averages <- function(simulation) {
     return()
   }
 
-  ## create list of potential variable names, initialize matrix to populate with average
-  varnames <- c("diameter", "diameter.growth", "height", "crown_area", "struct_biomass", "root_sa")
-  cnames <- c("crown.class", varnames[varnames %in% names(simulation)])
+  ## create list of potential variable names, initialize matrix to populate with averages
+  varnames <- c("diameter", "diameter.growth", "height", "crown_area", "struct_biomass")
+  cnames <- c("timestep","crown.class", varnames[varnames %in% names(simulation)])
   avgs <- matrix(1, nrow = 2*((simulation[["max_t"]]/simulation[["timestep"]])+1), ncol = length(cnames))
   colnames(avgs) <- cnames
 
-  avgs[,1] <- c(rep(1, times = (simulation[["max_t"]]/simulation[["timestep"]])+1), rep(2, times = (simulation[["max_t"]]/simulation[["timestep"]])+1))
-  for (i in 2:length(cnames)) {
+  avgs[,2] <- c(rep(1, times = (simulation[["max_t"]]/simulation[["timestep"]])+1), rep(2, times = (simulation[["max_t"]]/simulation[["timestep"]])+1))
+  avgs[,1] <- rep(seq(1, simulation[["max_t"]]+1, by = simulation[["timestep"]]), times = 2)
+  for (i in 3:length(cnames)) {
     for(j in 1:(nrow(avgs)/2)) {
       ## no diameter growth in last timestep
       if(cnames[i]=="diameter.growth" & j == nrow(avgs)/2) {

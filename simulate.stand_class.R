@@ -3,9 +3,30 @@
 
 ## define main simulate function
 
-simulate.stand <- function(max_t, timestep, dnot, plot.area, full.allom = TRUE, avgs = TRUE) {
 
-  if (!is.numeric(max_t)) {
+extract_column <- function(colname, data) {
+
+  data_matrix <- data[[colname]]
+
+  if(!is.matrix(data_matrix)) {
+    print("Error: column matrix must be of class matrix")
+    return()
+  }
+
+  column <- as.vector(data_matrix)
+  return(column)
+
+}
+
+
+simulate_stand <- function(allometry, max_t, timestep, dnot = rnorm(n = nstart, mean = 0.0004, sd = 0.00005), plot.area, n_start, full.allom = TRUE, avgs = TRUE, full.data = TRUE) {
+
+  if(!is.allometry(allometry)) {
+    print("Error: allometry must be an allometry object created using the create_allometry function")
+    return()
+  }
+
+  if(!is.numeric(max_t)) {
     print("Error: max_t must be numeric")
     return()
   }
@@ -30,15 +51,15 @@ simulate.stand <- function(max_t, timestep, dnot, plot.area, full.allom = TRUE, 
     return()
   }
 
-  if(!is.logical(full.allom)) {
+  if (!is.logical(full.allom)) {
     print("Error: full.allom must be TRUE/FALSE")
     return()
   }
 
   ## initialize data list
-  data <- list(diameter = matrix(1, nrow = cohort_density * plot.area, ncol = max_t/timestep+1),
-               crown.class = matrix(1, nrow = cohort_density * plot.area, ncol = max_t/timestep+1),
-               diameter.growth = matrix(1, nrow = cohort_density * plot.area, ncol = max_t/timestep))
+  data <- list(diameter = matrix(1, nrow = n_start, ncol = max_t/timestep+1),
+               crown.class = matrix(1, nrow = n_start, ncol = max_t/timestep+1),
+               diameter.growth = matrix(1, nrow = n_start, ncol = max_t/timestep+1))
 
   data[["diameter"]][,1] <- dnot
   A_c <- calc.A(crown.class = 1)
@@ -64,6 +85,10 @@ simulate.stand <- function(max_t, timestep, dnot, plot.area, full.allom = TRUE, 
                                                                         calc.dd, l=l_u, r=r_u, A=A_u, simplify = "vector")
     }
 
+    ## this is just to improve interpretability for summary functions, likely there is a cleaner way to do this?
+    if (i == max_t) {
+      data[["diameter.growth"]][,i+1] <- NA
+    }
     ## calculate diameter for next timestep
     data[["diameter"]][,i+1] <- data[["diameter"]][,i] + data[["diameter.growth"]][,i]
 
@@ -74,10 +99,10 @@ simulate.stand <- function(max_t, timestep, dnot, plot.area, full.allom = TRUE, 
     }
     else {
       ## order data from largest to smallest
-      data[["diameter"]] <- data[["diameter"]][order(data[["diameter"]][,i+1]),]
-      data[["crown.class"]] <- data[["crown.class"]][order(data[["diameter"]][,i+1]),]
-      data[["diameter.growth"]] <- data[["diameter.growth"]][order(data[["diameter"]][,i+1]),]
-      ## create vector of cumulative CA sums, used to determine which trees to add, remove from canopy
+      data[["diameter"]] <- data[["diameter"]][order(data[["diameter"]][,i+1], decreasing = TRUE),]
+      data[["crown.class"]] <- data[["crown.class"]][order(data[["diameter"]][,i+1], decreasing = TRUE),]
+      data[["diameter.growth"]] <- data[["diameter.growth"]][order(data[["diameter"]][,i+1], decreasing = TRUE),]
+      ## create vector of cumulative CA sums, used to determine which trees to add/remove from canopy
       ca.sum <- vector(length=nrow(data[["diameter"]]), mode = "numeric")
       for (j in 1:nrow(data[["diameter"]])) {
         ca.sum[j] <- sum((alpha_w*data[["diameter"]][,i+1]^gamma)[1:j])
@@ -100,10 +125,22 @@ simulate.stand <- function(max_t, timestep, dnot, plot.area, full.allom = TRUE, 
     data[["avgs"]] <- simulation_averages(data)
   }
 
+  if (full.data) {
+    colnames <- names(data)[!(names(data) %in% c("avgs", "max_t", "timestep", "plot.area"))]
+    columns <- lapply(colnames, extract_columns, data = data)
+    full.data <- matrix(unlist(columns), ncol = length(colnames))
+    time_column <- rep(seq(1, (max_t+timestep), by = timestep), each = nrow(data[["diameter"]]))
+    ind_column <- rep(seq(1, nrow(data[["diameter"]]), by = 1), times = (max_t/timestep)+1)
+    full.data <- cbind(time_column, ind_column, full.data)
+    colnames(full.data) <- c("timestep", "individual", colnames)
+    data[["full.data"]] <- full.data
+  }
+
   return(data)
 }
 
-## define is function
+
+## define is. method for simulation class
 is.simulation <- function(x) inherits(x, "simulation")
 
 ## define format and summary methods for simulate.stand
@@ -118,13 +155,72 @@ format.simulation <- function(x) {
 
 summary.simulation <- function(simulation) {
 
+  if(!full.data) {
+    print("Error: simulation must have full.data element for summary method")
+    return()
+  }
+
+  ## generate table of means and sds
+  varnames <- c("diameter", "diameter.growth", "height", "crown_area", "struct_biomass")[c("diameter", "diameter.growth", "height", "crown_area", "struct_biomass") %in% names(simulation)]
+  table_text <- matrix(0, nrow = length(varnames), ncol = 2)
+  colnames(table_text <- c("mean", "std. deviation")
+  rownames(table_text) <- varnames
+  for(i in 1:length(varnames)) {
+    table_text[i,2] <- mean(simulation[[varname]][simulation[["full.data"]][,"timestep"]==max_t+1,varname])
+    table_text[i,3] <- sd(simulation[[varname]][simulation[["full.data"]][,"timestep"]==max_t+1,varname])
+  }
+
+  cat("Simulation:", "\n"
+      "Max time: ", as.character(simulation[["max_t"]]), "\n",
+      "Time Step: ", as.character(simulation[["timestep"]]), "\n",
+      "Iterations: ", as.character(simulation[["max_t"]]/simulation[["timestep"]]), "\n",
+      "Plot Area:", as.character(simulation[["plot.area"]]), "\n",
+      "\n",
+      "Means and standard deviations for variables at last time step", "\n")
+  return(x)
 }
 
+plot_simulation_result <- function(data, y.val) {
+  ggplot(aes_string(x="timestep", y.val, color = "crown.class"), data = data) +
+    geom_point() +
+    geom_smooth(method = gam, formula = y~s(x, bs="cs", sp=3, k = 20), se = FALSE) +
+    xlab("Time Step") +
+    scale_color_discrete(name = "Crown Class") +
+    theme(title = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.background = element_blank(),
+          axis.line = element_line(colour = "black", size = 1))
+}
 
-##plot.simulation <- function(simulation) {
-##  timestep <- seq(1, simulation[["max_t"]]+1, by = timestep)
+plot.simulation <- function(simulation, avgs = FALSE, y.values) {
+  if (avgs) ind <- "avgs"
+  else ind <- "full.data"
 
-##  diameter.plot <- ggplot(aes(x=timestep,y=), color = ))
+  if (avgs & is.null(simulation[["avgs"]])) {
+    print("Error: avgs must be defined in simulation")
+    return()
+  }
 
+  if (ind == "full.data" & is.null(simulation[["full.data"]])) {
+    print("Error: fulldata must be defined in simulation")
+    return()
+  }
 
-##}
+  data <- as.data.frame(simulation[[ind]])
+  data$crown.class <- factor(data$crown.class)
+
+  if (missing(y.values)) {
+    y.values <- as.list(colnames(data)[!(colnames(data) %in% c("timestep", "individual","crown.class"))])
+  }
+
+  plot.list <- lapply(y.values, plot_simulation_result, data = data)
+  eval.list <- character()
+
+  for (i in 1:length(y.values)) {
+    if (i == length(y.values)) eval.list <- paste0(eval.list, "plot.list[[", i, "]]")
+    else eval.list <- paste0(eval.list, "plot.list[[", i, "]], ")
+  }
+  eval(parse(text = paste0("grid.arrange(", eval.list, ", nrow = 2, top = textGrob('Stand Simulation Output'))")))
+
+}
