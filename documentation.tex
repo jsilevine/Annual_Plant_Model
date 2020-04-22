@@ -7,6 +7,10 @@
 % preamble
 \documentclass{article}
 \usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{breqn}
+\usepackage{booktabs}
+\usepackage{array}
 \graphicspath{ {./figures/} }
 
 %title construciton
@@ -16,29 +20,51 @@
 
 \begin{document}
 
-  \maketitle
+\maketitle
+
+  \tableofcontents
 
   % Introduction section - motivate problem, introduce system
-  \section{Introduction}
+  \section{Introduction and Disclaimer}
+
+  This article contains documentation pertaining to a model for hydraulic
+  competition in annual plants. The primary aim of the document is to serve as an
+  evolving record of the work done on the model, and to more-or-less
+  informally communicate that work to co-authors. Therefore, the tone and
+  structure of what follows will be slightly different than what you would
+  expect in a document bound for the appendix of a manuscript. \p
+
+  Given the emphasis on clear communication, this document likely
+  includes more ``steps'' in the mathematical derivations and descriptions than
+  would normally be desirable in a concise manuscript. Its also likely that my
+  wording is frequently imprecise. This is more a reflection of my lack of
+  experience communicating math than any kind of intentional
+  decision, so please provide corrections where you see fit. \p
+
+  I have tried to go through the model in a way that accumulates parameters gradually, but
+  given the greek alphabet soup in this model (a compulsory element of plant
+  physiological models), I have provided a Parameter Index in \ref{parameter dictionary}.
 
   % Introduce basic model elements and language
   \section{Physiological Model}
 
   \subsection{Model Description} \label{model description}
 
-  The physiological dimensions of this model relate basic plant processes to the
-  relevant environmental quantities and the plant growth rates. Thus, the
-  three equations which make up the physiological portion of the model are its
-  hydraulic engine. The first relevant equation is a partially simplified
-  version of Farquhar's photosynthesis model (citation). This equation relates
-  the plant's carbon assimilation rate (minus root respiration $r_{l}$), $a$, to the atmospheric and internal concentrations of
+  The physiological portions of this model describe basic plant processes and
+  thus relate relevant environmental quantities to the plant growth rates. There
+  are three equations that make up the physiological portion of the model: one
+  which deals entirely with carbon production via photosythesis, and two
+  which relate photosynthesis to plant and soil hydrology. /p
+
+  This first equation is a partially simplified version of Farquhar's photosynthesis model
+  (citation), and relates a plant's carbon assimilation rate (minus root respiration $r_{l}$), $a$, to the atmospheric and internal concentrations of
   carbon ($C_{a}$ and $C_{i}$ respectively), as well as light availability
-  ($V_{max}$). $\omega$ is an empirical constant.
+  ($V_{max}$). $\omega$ is an empirically determined constant.
 
   % Farquhar type photosynthesis model
 
   \begin{equation} \label{eq:Farquhar}
-    a = \frac{V_{max}C_{i}}{\omega + C_{i}} - r_{l}
+    a = \frac{VC_{i}}{\omega + C_{i}} - r_{l}
   \end{equation}
 
   The second pertinent relationship is an adaptation of Fick's law, and
@@ -52,22 +78,22 @@
 
   where
 
-  $$g = \frac{m a \beta(\psi_{l})}{(C_{a} - \gamma)(1 + \frac{D_{s}}{D_{0}})}$$
+  $$g = \frac{m a \beta(\psi_{l})}{(C_{a} - \Gamma)(1 + \frac{D_{s}}{D_{0}})}$$
 
   Here, $m$ and $D_{0}$ are empirical constants. $D_{s}$ is the vapor pressure
-  deficity, and $\Gamma$ is the $CO_{2}$ compensation point. $\psi_{l}$ is the leaf
+  deficit, and $\Gamma$ is the $CO_{2}$ compensation point. $\psi_{l}$ is the leaf
   water potential, and $\beta(\psi_{l})$ is a shutoff operator bounded by 0 and
-  1 which goes to 0 as $\Psi_{l}$ goes to the wilting point. When the plant is
+  1 which goes to 0 as $\psi_{l}$ goes to the wilting point. When the plant is
   not water limited, $\beta(\psi_{l}) = 1$. For convenience, in the future we
-  will label the constant portion of $g$ as $\phi$. Therefore, $g$ becomes:
+  will label the constant portion of $g$, $\phi$. Therefore, $g$ becomes:
 
-  $$g = \phi a \beta(\Psi_{l})$$
+  $$g = \phi a \beta(\psi_{l})$$
 
   Finally, we use two equations for evapotranspiration: one which is a function
   of leaf area and another which is a function of root area. In the leaf
-  area equation, per unit leaf area evapotranspiration is dependent on the plant
+  area equation, evapotranspiration per unit leaf area is dependent on the plant
   stomatal conductance, $g$, and the vapor pressure deficit, $D_{s}$. In the
-  root area equation, per unit evapotranpiration is dependent on the xylem
+  root area equation, evapotranpiration is dependent on the xylem
   conductivity, $k$, and the water potential gradient from the soil to the leaf.
   Note that this equation is also a form of Fick's law.
 
@@ -77,16 +103,15 @@
 
   \subsection{Calculating the carbon assimilation rate} \label{calculating a}
 
-  In order to determine the plant's growth rate as a function of soil
+  To determine a plant's growth rate as a function of soil
   water content, we must first determine the relationship between soil water potential
   and carbon uptake, $a$. To do so, we first note that when a plant's leaf water
   potential is above the wilting point, the plant is not water limited, and
-  therefore operates at the maximum possible carbon assimilation rate, which
-  we will call $a_{max}$. The wilting point of the plant is the water potential at which
+  therefore operates at the maximum possible carbon assimilation rate, $a_{max}$. The wilting point of the plant is the water potential at which
   the plant's stomates first begin to shut. We label this value $\psi_{0}$.
 
-  We denote the soil water potential at which $\psi_{l}$ first reaches
-  $\psi_{0}$ as $\psi_{s}^{*}$. Therefore, for $\psi_{s} > \psi_{s}^{*}$:
+  We define $\psi_{s}^{*}$ as the soil water potential at which $\psi_{l}$ first reaches
+  $\psi_{0}$. Therefore, for $\psi_{s} > \psi_{s}^{*}$:
 
   $$a = g(C_{a} - C_{i})$$
 
@@ -98,7 +123,7 @@
 
   $$C_{i} = C_{a} - \frac{1}{\phi}$$
 
-  Plugging this expression into equation \ref{eq:Farquhar}, we get:
+  Plugging this expression into equation \ref{eq:Farquhar}, we get
 
 
   \begin{equation} \label{eq:amax}
@@ -107,11 +132,11 @@
   
 
   Now, to solve for $\psi_{s}^{*}$, we plug $\psi_{0}$ and $a_{max}$ into
-  \ref{eq:Evapotranspiration}:
+  equation \ref{eq:Evapotranspiration}, yielding
 
   $$L \phi a_{max} D_{s} = R k (\psi_{s}^{*} - \psi_{0})$$
 
-  therefore,
+  Therefore,
 
   \begin{equation} \label{eq:psistar}
     \psi_{s}^{*} = \frac{1}{\gamma} \frac{a_{max}D_{s}\phi}{k} + \psi_{0}
@@ -119,42 +144,42 @@
 
   where $\gamma$ is the root-shoot ratio of the plant.
 
-  Now, to calculate a plant's carbon assimilation rate during the period
-  $\psi_{0} < \psi_{s} < \psi_{s}^{*}$, we solve the system of equations 1:3 for
+  To calculate a plant's carbon assimilation rate during the period
+  $\psi_{0} < \psi_{s} < \psi_{s}^{*}$, we solve the system of equations 1-3 for
   a, noting that during this period $\psi_{l} = \psi_{0}$.
 
-  First, we can rearrange equation \ref{eq:Farquhar} to get:
+  First, we can rearrange equation \ref{eq:Farquhar} to get
 
   $$C_{i} =  \frac{\omega(a + r_{l})}{V - r_{l} - a}$$
 
-  Then, we can rearrange equation \ref{eq:Evapotranspiration} to get:
+  Then, we can rearrange equation \ref{eq:Evapotranspiration} to get
 
   $$g = \frac{\gamma k}{D_{s}} (\psi_{s} - \psi_{0})$$
 
-  and plug both into equation \ref{eq:Fick's Law} to get:
+  and plug both into equation \ref{eq:Fick's Law} to get
 
   \begin{equation} \label{eq:a}
     (\psi_{s} - \psi_{0}) = \frac{a( V - r_{l} - a)}{\frac{\gamma k}{D_{s}} [C_{a}(V - r_{l} - a) + \omega(a + r_{l}) ]}
   \end{equation}
 
-  By subtracting l.h.s from both sides and finding
+  By subtracting over the l.h.s and finding
   the roots of equation \ref{eq:a}, we can now solve $a$ for a given $\psi_{s}$.
 
   \subsection{A step-function approximation for a}
 
-  The dynamics described in section \ref{calculating a}, make the description of
+  The dynamics described in section \ref{calculating a} make the description of
   an analytical system for water competition impossible, even in the relatively
   simple case of mediterranean annuals. This is due to the nonlinear
   relationship between $\psi_{s}$ and $a$. This nonlinearity is further
-  exacerbated by the relationship between volumetric water content, $W$, and
+  complicated by the relationship between volumetric water content, $W$, and
   soil water potential:
 
   \begin{equation} \label{Wfun}
     \frac{W - W_{min}}{W_{max} - W_{min}} = - \left( \frac{\psi_{min}}{\psi_{s}} \right)^{\lambda}
   \end{equation}
 
-  However, if we plot $a$ as a function of $W$ across the season range of water
-  contents, we see that this relationship is step-like, with all
+  However, if we plot $a$ as a function of $W$ across the seasonal range of water
+  contents, we see that this relationship is nearly step-like, with all
   of the nonlinearity compressed within a small period at the end of the growing season.
 
   \begin{figure}[h]
@@ -164,8 +189,8 @@
     \label{fig:a2}
   \end{figure}
 
-  Figure \ref{fig:a2} shows $a$ as a function of $W$ with the xylem
-  conductivity $k = 2 kg m^{-1} MPa^{-1} season^{-1}$. Choices for the other parameter
+  Figure \ref{fig:a2} shows $a$ as a function of $W$ with a xylem
+  conductivity of $k = 2 kg m^{-1} MPa^{-1} season^{-1}$. Choices for the other parameter
   values were based off empirical estimates from Leuning et al. 1995 and can be
   found in section \ref{variable dictionary}. With $k = 2$, the relationship is
   nearly square, exhibiting an imperceptible degree of nonlinearity. This
@@ -184,8 +209,8 @@
 
   To illustrate the robustness of this approximation, we can tweak $k$
   in an effort to make the function as ``curvy as possible''. Decreasing
-  the $k$ to $0.05 kg m^{-1} MPa^{-1} season^{-1}$, an already unrealistically
-  small number, we begin to ever so slight blip of ``curviness'' in the
+  $k$ to $0.05 kg m^{-1} MPa^{-1} season^{-1}$, an already unrealistically
+  small number, we begin to see an ever so slight blip of ``curviness'' in the
   relationship (Fig. \ref{fig:a0.05})
 
   \begin{figure}[h]
@@ -195,10 +220,10 @@
     \label{fig:a0.003}
   \end{figure}
 
-  Finally, we can crank $k$ all the way down to
+  At the extreme, we can crank $k$ all the way down to
   $0.003 kg m^{-1} MPa^{-1} season^{-1}$, and see some amount of curve to the
-  relationship (Fig. \ref{fig:a0.003}). However, even at this unrealistic value, the overestimation of
-  $a$ that would occur is slight. Especially when one notes that the rate of
+  relationship (Fig. \ref{fig:a0.003}). However, even at this unrealistic value,
+  the overestimation of $a$ that would occur is slight, especially when one notes that the rate of
   decrease in $W$ is largest in this region given it occurs when plants are near
   the season-maximal size, and are therefore extracting water much faster than
   they are at the beginning of the season.
@@ -209,9 +234,7 @@
   \subsection{Model Description} \label{allometric model description}
 
   In order to calculate growth in the relevant dimensions, we will ascribe a
-  power law allometry for annual plants. This allometry is similar to the
-  ubiquitous power law allometry for trees first described by Robert Whittaker
-  in 1974.
+  power law allometry for annual plants.
 
   We are primarily interested in two dimensional quantities of the annual
   plants: leaf area and biomass. We are interested in leaf area because it is
@@ -230,9 +253,9 @@
 
   \subsection{Derivation of the Growth Rate Expression} \label{G derivation}
 
-  To calculate the plant growth rate, we begin by noting
+  To calculate a plant's growth rate, we begin by noting
   that to conserve carbon, the net carbon assimilation rate must
-  equal the change in biomass, $B$, with time
+  equal the change in biomass, $B$, over time
 
   $$ L a_{max} - \gamma L r_{r} = \frac{dB}{dt}$$
 
@@ -246,7 +269,7 @@
 
   $$ \frac{dL}{dt} = \frac{L^{2 - \nu} ( a_{max} - \gamma r_{r})}{\nu \delta} $$
 
-  In order for our system to be analytical, we require that the growth rate be
+  For the system to be analytical, we require that the growth rate be
   constant (i.e. that $\frac{dL}{dt}$ is not a function of $L$). As it stands, this is not the
   case for $\frac{dL}{dt}$, so we define another, arbitrary plant dimension,
   $x$, which is related to $L$ in the following manner:
@@ -256,7 +279,7 @@
   We then plug this equation for L into our expression for $\frac{dL}{dt}$ to
   obtain
 
-  $$ \frac{dL}{dx} = \frac{x^{\alpha(2 - \nu)}(a_{max} - \gamma r_{r})}{\nu \delta} $$
+  $$ \frac{dL}{dx}\frac{dx}{dt} = \frac{x^{\alpha(2 - \nu)}(a_{max} - \gamma r_{r})}{\nu \delta} $$
 
   Noting that $\frac{dL}{dx} = \alpha x^{\alpha - 1}$, we can solve for
   $\frac{dx}{dt}$, yielding
@@ -264,8 +287,8 @@
   $$ \frac{dx}{dt} = \frac{x^{\alpha \nu - 3\alpha + 1}(a_{max} - \gamma r_{r})}{\alpha \nu \delta} $$
 
   Now, to make $\frac{dx}{dt}$ constant, we can set
-  $\alpha \nu - 3 \alpha + 1 = 0$, giving $alpha = \frac{1}{\nu - 1}$, giving us
-  our growth rate expression
+  $\alpha \nu - 3 \alpha + 1 = 0$, finding $alpha = \frac{1}{\nu - 1}$, thereby
+  giving us the growth rate
 
   \begin{equation} \label{eq:Gx}
     G = \frac{dx}{dt} = \frac{\nu - 1}{\nu}\frac{a_{max} - \gamma r_{r}}{\delta}
@@ -277,7 +300,7 @@
   \end{equation}
 
   Using this growth rate, we can calculate the total leaf area for species $i$ at
-  time $t$, in year $T$ by the following:
+  time $t$, in year $T$ by the following relationship
 
   \begin{equation} \label{eq:L(t)}
     L(t) = N_{i, T}G_{i}^{\frac{1}{\nu - 1}}t^{\frac{1}{\nu - 1}}
@@ -303,7 +326,7 @@
   $$ W_{1} =  W_{0} - a_{max}D_{s}\phi \int_{0}^{t_{1}} \! \sum_{j = 1}^{Q}N_{j, T}G_{j}^{\frac{1}{\nu-1}}t^{\frac{1}{\nu-1}}dt$$
 
  Where $t_{1}$ is the time at which species 1 stops groing, and $W_{1}$ is the
- volumetric water content at $t_{1}$. Taking the integral with respect to $t$
+ volumetric water content at $t_{1}$. Taking the integral with respect to $t$ we find
 
   $$ W_{1} =  W_{0} - a_{max}D_{s}\phi \left[ \frac{\nu - 1}{\nu}\sum_{j = 1}^{Q}N_{j, T}G_{j}^{\frac{1}{\nu-1}}t_{1}^{\frac{\nu}{\nu-1}}  - 0\right] $$
 
@@ -329,9 +352,9 @@
 
   \subsection{Population Dynamics}
 
-  Plant reproduction is proportion to biomass by the fecundity constant $F$
+  Plant reproduction is proportional to biomass by the fecundity constant $F$
   which can be interpreted as the number of germinating offspring produced per
-  unit biomass. Thereby, using equations \ref{eq:G} and \ref{power allometry}
+  unit biomass. Thereby, using equations \ref{eq:Gx} and \ref{power allometry}
   we can write the expression for $N_{i, T+1}$ as:
 
   \begin{equation} \label{eq:NT+1}
@@ -347,38 +370,40 @@
   the expression for species two, we can iteratively substitute in the solution
   and then solve for $N_{Q}^{*}$.
 
-  At equilibrium $N_{i, T+1} = N_{i, T}$. So, by setting $N_{1, T+1} = N_{1, T}$
-  in equation \ref{eq:NT+1} we obtain
+  At equilibrium $N_{i, T+1} = N_{i, T}$. Plugging this in to
+  equation \ref{eq:NT+1} we obtain
 
-  $$ 1 = G_{1}^{\frac{\nu}{\nu-1}}F(\frac{\nu}{\nu - 1})(\frac{1}{a_{max}D_{s}\phi})\left[ \frac{W_{0} - W_{1}}{\sum_{j = 1}^{Q}N_{j,T}G_{j}^{\frac{1}{\nu-1}}} \right] $$
+  $$ 1 = F(\frac{\nu}{\nu - 1})(\frac{1}{a_{max}D_{s}\phi})G_{1}^{\frac{\nu}{\nu-1}}\left[ \frac{W_{0} - W_{1}}{\sum_{j = 1}^{Q}N_{j,T}G_{j}^{\frac{1}{\nu-1}}} \right] $$
 
 
   which can be solved for the sum in the denominator to get
 
-  $$ \sum_{j = 1}^{Q}N_{j,T}^{*}G_{j}^{\frac{1}{\nu-1}} = F(\frac{\nu}{\nu - 1})(\frac{1}{a_{max}D_{s}\phi})G_{1}^{\frac{\nu}{\nu - 1}}[W_{0} - W_{1}]$$
+  \begin{equation} \label{eq:equil_sum1}
+    \sum_{j = 1}^{Q}N_{j,T}^{*}G_{j}^{\frac{1}{\nu-1}} = F(\frac{\nu}{\nu - 1})(\frac{1}{a_{max}D_{s}\phi})G_{1}^{\frac{\nu}{\nu - 1}}[W_{0} - W_{1}]
+  \end{equation}
 
-  This can then be plugged into the expression for $N_{2, T+1}$ and
-  solved for $\sum_{j = 2}^{Q}N_{j,T}^{*}G_{j}^{\frac{1}{\nu-1}}$, and on to
+  Equation \ref{eq:eqil_sum1} can then be plugged into the expression for $N_{2, T+1}$ and
+  solved for $\sum_{j = 2}^{Q}N_{j,T}^{*}G_{j}^{\frac{1}{\nu-1}}$, and so on to
   obtain the following generic expression for
   $\sum_{j = i}^{Q}N_{j, T}^{*}G_{j}^{\frac{1}{\nu - 1}}$:
 
-  \begin{equation} \label{eq:equil_sum}
-    \sum_{j = i}^{Q}N_{j, T}^{*}G_{j}^{\frac{1}{\nu - 1}} = F(\frac{\nu}{\nu - 1})(\frac{1}{a_{max}D_{s}\phi})G_{i}^{\frac{\nu}{\nu - 1}}\left(\ frac{G_{i-1}^{\frac{\nu}{\nu-1}}}{G_{i-1}^{\frac{\nu}{\nu-1}} - G_{i}^{\frac{\nu}{\nu-1}}} \right)(W_{i-1} - W_{i})
-  \end{equation}
+  \begin{dmath} \label{eq:equil_sum}
+    \sum_{j = i}^{Q}N_{j, T}^{*}G_{j}^{\frac{1}{\nu - 1}} = F(\frac{\nu}{\nu - 1})(\frac{1}{a_{max}D_{s}\phi})G_{i}^{\frac{\nu}{\nu - 1}}\left(\frac{G_{i-1}^{\frac{\nu}{\nu-1}}}{G_{i-1}^{\frac{\nu}{\nu-1}} - G_{i}^{\frac{\nu}{\nu-1}}} \right)(W_{i-1} - W_{i})
+  \end{dmath}
 
-  This expression can then be used to solve for the equilibrium abundance of
+  which in turn can be used to solve for the equilibrium abundance of
   species Q:
 
   \begin{equation} \label{eq:NstarQ}
-   N_{Q, T}^{*} = F(\frac{\nu}{\nu - 1})(\frac{1}{a_{max}D_{s}\phi})(W_{Q-1} - W_{Q})G_{Q}(\frac{G_{3}^{\frac{\nu}{\nu-1}}}{G_{3}^{\frac{\nu}{\nu-1}} - G_{4}^{\frac{\nu}{\nu-1}}})
+   N_{Q, T}^{*} = F(\frac{\nu}{\nu - 1})(\frac{1}{a_{max}D_{s}\phi})(W_{Q-1} - W_{Q})G_{Q}(\frac{G_{Q-1}^{\frac{\nu}{\nu-1}}}{G_{Q-1}^{\frac{\nu}{\nu-1}} - G_{Q}^{\frac{\nu}{\nu-1}}})
  \end{equation}
 
   This expression can then be used to solve for the equilibrium population of
   species $i \neq 1, Q$:
 
-  \begin{equation} \label{eq:Nstari}
+  \begin{dmath} \label{eq:Nstari}
     N_{i \neq 1,Q; T}^{*} = F(\frac{\nu}{\nu - 1})(\frac{1}{a_{max}D_{s}\phi})G_{i}\left[ (W_{i-1} - W_{i})(\frac{G_{i-1}^{\frac{\nu}{\nu-1}}}{G_{i-1}^{\frac{\nu}{\nu-1}} - G_{i}^{\frac{\nu}{\nu-1}}}) - (W_{i} - W_{i+1})(\frac{G_{i+1}^{\frac{\nu}{\nu-1}}}{G_{i}^{\frac{\nu}{\nu-1}} - G_{i+1}^{\frac{\nu}{\nu-1}}}) \right]
-  \end{equation}
+  \end{dmath}
 
   and finally:
 
@@ -389,25 +414,103 @@
 
   \subsection{Invasion of a Rare Type} \label{invasion when rare}
 
-  We consider a species, $q$, growing from rare abundance in a system of $Q$ total
-  species at equilibrium abundance. By definition, the growth rate of species
-  $i$ lies between the growth rates of species $q-1$ and $q+1$. Note that following
+  We consider a species, $q$, growing from rare abundance in a system of $Q-1$
+  other species (labelled 1, 2, ..., q-1, q+1, ..., Q-1) at equilibrium
+  abundance. By definition, the growth rate of species
+  $q$ lies between the growth rates of species $q-1$ and $q+1$. Note that following
   equation \ref{eq:NT+1}, the population growth rate of any species, $r_{i}$, is given by
 
-  $$ r_{i} = F G_{i}^{\frac{\nu}{\nu - 1}}\left[ (\frac{\nu}{\nu-1})(\frac{1}{a_{max}D_{s}\phi}) \sum_{k = 1}^{i}\frac{W_{k -1} - W_{k}}{\sum_{j=k}^{Q}N_{j, T}G_{j}^{\frac{1}{\nu - 1}}} \right] $$
+  $$ r_{i} =  c g_{i}\left[  \sum_{k = 1}^{i}\frac{W_{k -1} - W_{k}}{\sum_{j=k}^{Q}N_{j, T}G_{j}^{\frac{1}{\nu - 1}}} \right] $$
 
-  Given that all species $i \neq q$ are at equilibrium abundance in this system,
+  where $c = F(\frac{\nu}{\nu-1})(\frac{1}{a_{max}D_{s}\phi})$, and $g = G^{\frac{\nu}{\nu-1}}$. Given that all species $i \neq q$ are at equilibrium abundance in this system,
   we can write the expression for $r_{q}$ as
 
-  $$ r_{q} = F G_{q}^{\frac{\nu}{\nu - 1}}\left[ (\frac{\nu}{\nu-1})(\frac{1}{a_{max}D_{s}\phi}) \sum_{k = 1}^{q-1}\frac{W_{k -1} - W_{k}}{\sum_{j=k}^{Q}N_{j, T}^{*}G_{j}^{\frac{1}{\nu - 1}} + N_{q, T}G_{q}^{\frac{1}{\nu - 1}}} + \frac{W_{q-1} - W_{q}}{\sum_{j = q+1}^{Q}N_{k, T}^{*}G_{k}^{\frac{1}{\nu - 1}} + N_{q, T}G_{q}^{\frac{1}{\nu - 1}}} \right] $$
+  $$ r_{q} = c g_{q}\left[  \sum_{k = 1}^{q-1}\frac{W_{k -1} - W_{k}}{\sum_{j=k}^{Q}N_{j, T}^{*}G_{j}^{\frac{1}{\nu - 1}} + N_{q, T}G_{q}^{\frac{1}{\nu - 1}}} + \frac{W_{q-1} - W_{q}}{\sum_{j = q+1}^{Q}N_{k, T}^{*}G_{k}^{\frac{1}{\nu - 1}} + N_{q, T}G_{q}^{\frac{1}{\nu - 1}}} \right] $$
 
-  Plugging in equation \ref{eq:}
+  Plugging in equations \ref{eq:equil_sum1} and \ref{eq:equil_sum} we get
+
+  \begin{dmath*}
+     r_{q} = c g_{q} \left[ \frac{W_{0} - W_{1}}{c g_{1} (W_{0} - W_{1}) + N_{q, T}G_{q}^{\frac{1}{\nu - 1}} } + \sum_{k = 1}^{q-1}\frac{W_{k -1} - W_{k}}{c g_{k}(\frac{g_{k-1}}{g_{k-1} - g_{k}})(W_{k-1} - W_{k}) + N_{q, T}G_{q}^{\frac{1}{\nu - 1}}} + \frac{W_{q-1} - W_{q}}{c g_{q+1}\frac{g_{q-1}}{g_{q-1} - g_{q+1}}(W_{q-1} - W_{q+1}) + N_{q, T}G_{q}^{\frac{1}{\nu - 1}}} \right]
+  \end{dmath*}
+
+  Now, to obtain the expression for $r_{q}$ at low abundance, we take
+  $\lim_{N_{q, T}\to0}\! r_{q}$
+
+  \begin{dmath*}
+  \lim_{x\to0}r_{q} = c g_{q} \left[ \frac{W_{0} - W_{1}}{c g_{1} (W_{0} - W_{1}) + 0} + \sum_{k = 1}^{q-1}\frac{W_{k -1} - W_{k}}{c g_{k}(\frac{g_{k-1}}{g_{k-1} - g_{k}})(W_{k-1} - W_{k}) + 0} + \frac{W_{q-1} - W_{q}}{\sum_{j = q+1}^{Q}N_{k, T}^{*}G_{k}^{\frac{1}{\nu - 1}} + 0} \right] $$
+  \end{dmath*}
+
+  noting that
+  $\frac{1}{g_{k-1}} + \frac{g_{k-1} - g_{k}}{g_{k-1}g_{k}} = \frac{1}{g_{k}}$,
+  the above expression simplifies to
+
+  $$ r_{q, invasion} = \frac{g_{q}}{g_{q-1}}\left[ 1 + \frac{g_{q-1} - g_{q+1}}{g_{q+1}} (\frac{W_{q-1} - W_{1}}{W_{q-1} - W_{q+1}}) \right] $$
+
+  Therefore, invasion of species $q$ when rare is governed by
+
+  \begin{equation} \label{eq:invasion}
+    N_{q, T+1} = N_{q, T}\frac{g_{q}}{g_{q-1}}\left[ 1 + \frac{g_{q-1} - g_{q+1}}{g_{q+1}} (\frac{W_{q-1} - W_{1}}{W_{q-1} - W_{q+1}}) \right]
+  \end{equation}
+
+  which implies that invasion when rare requires:
+
+  $$ r_{q, invasion} =\frac{g_{q}}{g_{q-1}}\left[ 1 + \frac{g_{q-1} - g_{q+1}}{g_{q+1}} (\frac{W_{q-1} - W_{1}}{W_{q-1} - W_{q+1}}) \right] > 1 $$
+
+  \subsection{Evolutionary Stable Strategies}
+
+
+  
 
   % include details about extension to depth cases
   \section{Model Extensions}
 
-  % Index of parameter symbols, names and values if applicable
+  %Index of parameter symbols, names and values if applicable
   \section{Parameter Index} \label{variable dictionary}
+
+  \begin{table}
+    \begin{tabular}{ll}
+      \toprule
+      \textbf{Parameter} & \textbf{Definition} \\
+      \midrule
+      $V$ & light availability above the crown \\
+      $C_{a}$ & atmospheric carbon concentration \\
+      $C_{i}$ & internal plant carbon concentration \\
+      $\omega$ & empirical constant in Farquhar photosynthesis model, eq.
+                 1 \\
+      $a_{max}$ & maximum rate of carbon uptake \\
+      $g$ & plant stomatal conductace \\
+      $m$ & empirical constant from Fick's law, eq. 2 \\
+      $\psi_{l}$ & leaf water potential \\
+      $\Gamma$ & $CO_{2}$ compensation point \\
+      $D_{s}$ & vapor pressure deficit \\
+      $D_{0}$ & empirical constant from Fick's law, eq. 2 \\
+      $\phi$ & shorthand expression of constants from Fick's law, eq. 2 \\
+      $L$ & leaf area \\
+      $R$ & root area \\
+      $k$ & xylem conductivity \\
+      $\psi_{s}$ & soil water potential \\
+      $r_{l}$ & leaf respiration rate \\
+      $r_{r}$ & root respiration rate \\
+      $\psi_{0}$ & wilting leaf water potential \\
+      $\gamma$ & root area to shoot area ratio \\
+      $W$ & volumetric water content of the soil \\
+      $B$ & plant biomass \\
+      $\delta$ & allometric coefficient for relationship between $L$ and $B$ \\
+      $\nu$ & allometric exponent for relationship between $L$ and $B$ \\
+      $x$ & arbitrary plant dimension in which growth is measured \\
+      $alpha$ & allometric exponenet that relates $x$ to $L$ \\
+      $G$ & plant growth rate in $x$ \\
+      $G_{L}$ & plant growth rate in $L$ \\
+      $t$ & timestep (within season) \\
+      $T$ & season \\
+      $N_{i, T}$ & abundance of species $i$ during season $T$ \\
+      $F$ & number of germinating offspring produced per unit biomass \\
+      $N^{*}$ & equilibirum abundance \\
+      $c$ & shorthand for $F(\frac{\nu}{\nu-1})(\frac{1}{a_{max}D_{s}\phi})$ \\
+      $g$ & shorthand for $G^{\frac{\nu}{\nu-1}}$ \\
+      \bottomrule
+    \end{tabular}
+  \end{table} 
 
 
 \end{document}
